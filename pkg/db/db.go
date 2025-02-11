@@ -19,7 +19,6 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	return db, nil
 }
 
-// GetDB возвращает подключение к базе данных
 func GetDB() *gorm.DB {
 	return dbConn
 }

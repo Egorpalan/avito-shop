@@ -5,6 +5,12 @@ import (
 	"gorm.io/gorm"
 )
 
+type TransactionRepositoryInterface interface {
+	GetUserBalance(userID uint) (int, error)
+	UpdateUserBalance(userID uint, newBalance int) error
+	CreateTransaction(transaction *models.Transaction) error
+}
+
 type TransactionRepository struct {
 	db *gorm.DB
 }

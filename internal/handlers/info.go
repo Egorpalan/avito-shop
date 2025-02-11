@@ -15,14 +15,12 @@ func NewInfoHandler(infoService *service.InfoService) *InfoHandler {
 }
 
 func (h *InfoHandler) GetUserInfo(c *gin.Context) {
-	// Получаем username из контекста
 	username, exists := c.Get("username")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"errors": "User not authenticated"})
 		return
 	}
 
-	// Получаем информацию о пользователе
 	info, err := h.infoService.GetUserInfo(username.(string))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"errors": err.Error()})

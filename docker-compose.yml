@@ -8,6 +8,11 @@ services:
       POSTGRES_USER: avito
       POSTGRES_PASSWORD: avito123
       POSTGRES_DB: avito_shop
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U avito -d avito_shop" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     ports:
       - "5436:5432"
     volumes:
@@ -21,7 +26,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - DB_HOST=db
       - DB_USER=avito

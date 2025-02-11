@@ -24,21 +24,18 @@ func (h *TransactionHandler) SendCoins(c *gin.Context) {
 		return
 	}
 
-	// Получаем username из контекста
 	username, exists := c.Get("username")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"errors": "User not authenticated"})
 		return
 	}
 
-	// Преобразуем username в строку
 	fromUsername, ok := username.(string)
 	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"errors": "Invalid username type"})
 		return
 	}
 
-	// Передаем username в сервис
 	if err := h.transactionService.SendCoinsByUsername(fromUsername, request.ToUser, request.Amount); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"errors": err.Error()})
 		return

@@ -7,11 +7,11 @@ import (
 )
 
 type TransactionService struct {
-	transactionRepo *repository.TransactionRepository
-	userRepo        *repository.UserRepository
+	transactionRepo repository.TransactionRepositoryInterface
+	userRepo        repository.UserRepositoryInterface
 }
 
-func NewTransactionService(transactionRepo *repository.TransactionRepository, userRepo *repository.UserRepository) *TransactionService {
+func NewTransactionService(transactionRepo repository.TransactionRepositoryInterface, userRepo repository.UserRepositoryInterface) *TransactionService {
 	return &TransactionService{transactionRepo: transactionRepo, userRepo: userRepo}
 }
 
@@ -34,7 +34,6 @@ func (s *TransactionService) SendCoins(fromUserID, toUserID uint, amount int) er
 		return err
 	}
 
-	// Обновляем балансы
 	if err := s.transactionRepo.UpdateUserBalance(fromUserID, fromUserBalance-amount); err != nil {
 		return err
 	}
@@ -42,7 +41,6 @@ func (s *TransactionService) SendCoins(fromUserID, toUserID uint, amount int) er
 		return err
 	}
 
-	// Создаем запись о транзакции
 	transaction := &models.Transaction{
 		FromUserID: fromUserID,
 		ToUserID:   toUserID,
@@ -52,19 +50,16 @@ func (s *TransactionService) SendCoins(fromUserID, toUserID uint, amount int) er
 }
 
 func (s *TransactionService) SendCoinsByUsername(fromUsername, toUsername string, amount int) error {
-	// Находим fromUser по username
 	fromUser, err := s.userRepo.GetUserByUsername(fromUsername)
 	if err != nil {
 		return errors.New("sender user not found")
 	}
 
-	// Находим toUser по username
 	toUser, err := s.userRepo.GetUserByUsername(toUsername)
 	if err != nil {
 		return errors.New("recipient user not found")
 	}
 
-	// Выполняем передачу монет
 	return s.SendCoins(fromUser.ID, toUser.ID, amount)
 }
 

@@ -5,6 +5,12 @@ import (
 	"gorm.io/gorm"
 )
 
+type MerchRepositoryInterface interface {
+	GetMerchPrice(merchID uint) (int, error)
+	AddToInventory(userID, merchID uint, quantity int) error
+	GetMerchByName(name string) (*models.Merch, error)
+}
+
 type MerchRepository struct {
 	db *gorm.DB
 }
