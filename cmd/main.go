@@ -8,21 +8,25 @@ import (
 	"github.com/Egorpalan/avito-shop/internal/service"
 	"github.com/Egorpalan/avito-shop/migrations"
 	"github.com/Egorpalan/avito-shop/pkg/db"
-	"log"
+	"github.com/Egorpalan/avito-shop/pkg/logger"
 )
 
 func main() {
+	log := logger.InitLogger()
 	cfg := config.LoadConfig(".env.example")
+	log.Info("Config loaded", "env", "env.example")
 
 	dbConn, err := db.InitDB(cfg)
 	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		log.Error("Failed to connect to database", "error", err)
 	}
+	log.Info("Connected to database")
 
 	err = migrations.AutoMigrate(dbConn)
-	if err != nil {
-		log.Fatal("Failed to auto migrate:", err)
+	if err := migrations.AutoMigrate(dbConn); err != nil {
+		log.Error("Failed to auto migrate", "error", err)
 	}
+	log.Info("Database migrated successfully")
 
 	userRepo := repository.NewUserRepository(dbConn)
 	transactionRepo := repository.NewTransactionRepository(dbConn)

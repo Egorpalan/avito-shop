@@ -6,16 +6,6 @@ import (
 	"github.com/Egorpalan/avito-shop/internal/repository"
 )
 
-//type MerchService struct {
-//	merchRepo       *repository.MerchRepository
-//	transactionRepo *repository.TransactionRepository
-//	userRepo        *repository.UserRepository
-//}
-//
-//func NewMerchService(merchRepo *repository.MerchRepository, transactionRepo *repository.TransactionRepository, userRepo *repository.UserRepository) *MerchService {
-//	return &MerchService{merchRepo: merchRepo, transactionRepo: transactionRepo, userRepo: userRepo}
-//}
-
 type MerchService struct {
 	merchRepo       repository.MerchRepositoryInterface
 	transactionRepo repository.TransactionRepositoryInterface

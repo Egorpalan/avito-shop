@@ -23,3 +23,8 @@ func (m *MockTransactionRepository) CreateTransaction(transaction *models.Transa
 	args := m.Called(transaction)
 	return args.Error(0)
 }
+
+func (m *MockTransactionRepository) TransferCoins(fromUserID, toUserID uint, amount int) error {
+	args := m.Called(fromUserID, toUserID, amount)
+	return args.Error(0)
+}
