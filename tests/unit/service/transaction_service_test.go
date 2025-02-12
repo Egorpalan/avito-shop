@@ -17,7 +17,6 @@ func TestTransactionService_SendCoins_Success(t *testing.T) {
 
 	transactionService := service.NewTransactionService(mockTransactionRepo, mockUserRepo)
 
-	// ✅ Ожидаем вызов TransferCoins вместо отдельных операций
 	mockTransactionRepo.On("TransferCoins", uint(1), uint(2), 200).Return(nil)
 
 	err := transactionService.SendCoins(1, 2, 200)

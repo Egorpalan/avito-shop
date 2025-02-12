@@ -1,53 +1,47 @@
 package integration
 
 import (
-	"log"
 	"testing"
 
 	"github.com/Egorpalan/avito-shop/internal/models"
 	"github.com/Egorpalan/avito-shop/internal/repository"
 	"github.com/Egorpalan/avito-shop/internal/service"
 	"github.com/stretchr/testify/assert"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
-
-// Подключаем тестовую БД
-func setupTestDB() *gorm.DB {
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	if err != nil {
-		log.Println(err)
-	}
-	err = db.AutoMigrate(&models.User{}, &models.Transaction{}, &models.Merch{}, &models.Inventory{})
-	if err != nil {
-		log.Println(err)
-	}
-	return db
-}
 
 func TestMerchPurchaseScenario(t *testing.T) {
 	db := setupTestDB()
-	transactionRepo := repository.NewTransactionRepository(db)
+	defer clearTestDB(db)
+
 	userRepo := repository.NewUserRepository(db)
 	merchRepo := repository.NewMerchRepository(db)
-	merchService := service.NewMerchService(merchRepo, transactionRepo, userRepo) // Используем MerchService
+	transactionRepo := repository.NewTransactionRepository(db)
 
-	user := models.User{Username: "testuser", Coins: 500}
-	db.Create(&user)
+	userService := service.NewUserService(userRepo)
+	merchService := service.NewMerchService(merchRepo, transactionRepo, userRepo)
 
-	merch := models.Merch{Name: "T-Shirt", Price: 300}
-	db.Create(&merch)
+	user := &models.User{Username: "Alice", Password: "password123"}
+	err := userService.Register(user)
+	assert.NoError(t, err, "User registration should succeed")
 
-	err := merchService.BuyMerchByUsername("testuser", merch.ID)
+	user, err = userRepo.GetUserByUsername("Alice")
 	assert.NoError(t, err)
 
-	var updatedUser models.User
-	db.First(&updatedUser, "username = ?", "testuser")
-	assert.Equal(t, 200, updatedUser.Coins)
+	savedMerch, err := merchRepo.GetMerchByName("t-shirt")
+	assert.NoError(t, err)
+	assert.NotNil(t, savedMerch, "Merch should be found in DB")
+
+	err = merchService.BuyMerchByUsername("Alice", savedMerch.ID)
+	assert.NoError(t, err, "Purchase should succeed")
+
+	newBalance, err := transactionRepo.GetUserBalance(user.ID)
+	assert.NoError(t, err)
+	assert.Equal(t, 920, newBalance, "User's balance should be 920 after purchase")
 
 	var inventory models.Inventory
-	db.First(&inventory, "user_id = ? AND merch_id = ?", updatedUser.ID, merch.ID)
-	assert.Equal(t, 1, inventory.Quantity)
+	err = db.Where("user_id = ? AND merch_id = ?", user.ID, savedMerch.ID).First(&inventory).Error
+	assert.NoError(t, err, "Inventory should contain the purchased merch")
+	assert.Equal(t, 1, inventory.Quantity, "User should have 1 t-shirt in inventory")
 
 	t.Log("TestMerchPurchaseScenario complete")
 }

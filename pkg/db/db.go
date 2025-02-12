@@ -18,7 +18,3 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	dbConn = db
 	return db, nil
 }
-
-func GetDB() *gorm.DB {
-	return dbConn
-}

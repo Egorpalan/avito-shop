@@ -19,7 +19,6 @@ func NewTransactionService(transactionRepo repository.TransactionRepositoryInter
 	}
 }
 
-// Отправка монет между пользователями
 func (s *TransactionService) SendCoins(fromUserID, toUserID uint, amount int) error {
 	if fromUserID == toUserID {
 		return errors.New("cannot send coins to yourself")
