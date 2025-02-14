@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-
 	"github.com/Egorpalan/avito-shop/internal/models"
 	"github.com/Egorpalan/avito-shop/internal/repository"
 )

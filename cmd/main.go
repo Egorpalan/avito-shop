@@ -42,6 +42,6 @@ func main() {
 	merchHandler := handlers.NewMerchHandler(merchService)
 	infoHandler := handlers.NewInfoHandler(infoService)
 
-	server := server.NewServer(authHandler, infoHandler, transactionHandler, merchHandler)
+	server := server.NewServer(authHandler, infoHandler, transactionHandler, merchHandler, cfg)
 	server.Start()
 }

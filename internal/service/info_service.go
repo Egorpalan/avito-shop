@@ -3,6 +3,8 @@ package service
 import (
 	"github.com/Egorpalan/avito-shop/internal/models"
 	"github.com/Egorpalan/avito-shop/internal/repository"
+	"log"
+	"sync"
 )
 
 type InfoService struct {
@@ -19,14 +21,29 @@ func (s *InfoService) GetUserInfo(username string) (*models.InfoResponse, error)
 		return nil, err
 	}
 
-	inventory, err := s.userRepo.GetUserInventory(user.ID)
-	if err != nil {
-		return nil, err
-	}
+	var inventory []models.Inventory
+	var transactions []models.Transaction
+	var wg sync.WaitGroup
+	var invErr, transErr error
 
-	transactions, err := s.userRepo.GetUserTransactions(user.ID)
-	if err != nil {
-		return nil, err
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		inventory, invErr = s.userRepo.GetUserInventory(user.ID)
+	}()
+	go func() {
+		defer wg.Done()
+		transactions, transErr = s.userRepo.GetUserTransactions(user.ID)
+	}()
+	wg.Wait()
+
+	if invErr != nil {
+		log.Printf("Failed to get user inventory: %v", invErr)
+		return nil, invErr
+	}
+	if transErr != nil {
+		log.Printf("Failed to get user transactions: %v", transErr)
+		return nil, transErr
 	}
 
 	var received []models.TransactionDetail

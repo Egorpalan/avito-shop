@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func AuthMiddleware() gin.HandlerFunc {
+func AuthMiddleware(cfg *config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -24,8 +24,6 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-
-		cfg := config.LoadConfig(".env.example")
 
 		claims, err := jwt.ParseJWT(tokenString, cfg.JWTSecret)
 		if err != nil {

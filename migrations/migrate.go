@@ -14,5 +14,9 @@ func AutoMigrate(db *gorm.DB) error {
 		return err
 	}
 
+	if err := AddIndexes(db); err != nil {
+		return err
+	}
+
 	return nil
 }

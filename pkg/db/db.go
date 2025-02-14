@@ -4,9 +4,9 @@ import (
 	"github.com/Egorpalan/avito-shop/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"log"
+	"time"
 )
-
-var dbConn *gorm.DB
 
 func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	dsn := "host=" + cfg.DBHost + " user=" + cfg.DBUser + " password=" + cfg.DBPassword + " dbname=" + cfg.DBName + " port=" + cfg.DBPort + " sslmode=disable"
@@ -15,6 +15,15 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	dbConn = db
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Printf("Failed to get database instance: %v", err)
+		return nil, err
+	}
+
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(time.Hour)
+
 	return db, nil
 }

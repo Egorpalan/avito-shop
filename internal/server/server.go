@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"errors"
+	"github.com/Egorpalan/avito-shop/config"
 	"github.com/Egorpalan/avito-shop/internal/handlers"
 	"github.com/Egorpalan/avito-shop/internal/middleware"
 	"github.com/gin-gonic/gin"
@@ -18,14 +19,14 @@ type Server struct {
 	router *gin.Engine
 }
 
-func NewServer(authHandler *handlers.AuthHandler, infoHandler *handlers.InfoHandler, transactionHandler *handlers.TransactionHandler, merchHandler *handlers.MerchHandler) *Server {
+func NewServer(authHandler *handlers.AuthHandler, infoHandler *handlers.InfoHandler, transactionHandler *handlers.TransactionHandler, merchHandler *handlers.MerchHandler, cfg *config.Config) *Server {
 	r := gin.Default()
 
 	r.POST("/api/auth/register", authHandler.Register)
 	r.POST("/api/auth/login", authHandler.Login)
 
 	auth := r.Group("/api")
-	auth.Use(middleware.AuthMiddleware())
+	auth.Use(middleware.AuthMiddleware(cfg))
 	{
 		auth.GET("/info", infoHandler.GetUserInfo)
 		auth.POST("/sendCoin", transactionHandler.SendCoins)
@@ -37,8 +38,11 @@ func NewServer(authHandler *handlers.AuthHandler, infoHandler *handlers.InfoHand
 
 func (s *Server) Start() {
 	srv := &http.Server{
-		Addr:    ":8080",
-		Handler: s.router,
+		Addr:         ":8080",
+		Handler:      s.router,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  30 * time.Second,
 	}
 
 	go func() {

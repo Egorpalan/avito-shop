@@ -7,7 +7,7 @@ import (
 )
 
 type UserService struct {
-	userRepo repository.UserRepositoryInterface // Теперь интерфейс, а не *UserRepository
+	userRepo repository.UserRepositoryInterface
 }
 
 func NewUserService(userRepo repository.UserRepositoryInterface) *UserService {
